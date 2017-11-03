@@ -1,0 +1,44 @@
+{
+    "conversations": {
+      "Admin": [
+        {
+          "Statement": ["hello son"],
+          "Response": [ "Hello, Father." ]
+        }
+      ],
+      "Player": [
+        {
+          "Statement": [ "hi", "hey", "hello", "sup", "heyyy", "hi there" ],
+          "Response": [ "Hey there!", "Hiya!", "What's up?", "Sup?" ]
+        },
+        {
+          "Statement": [ "e" ],
+          "Response": [ "There's no 'E' in the answer choices..." ]
+        },
+        {
+          "Statement": [ "open the pod bay doors" ],
+          "Response": [ "I'm sorry, Dave. I'm afraid I can't do that." ]
+        },
+        {
+          "Statement": [ "whats the answer to life the universe and everything" ],
+          "Response": [ "42" ]
+        },
+        {
+          "Statement": [ "bitch", "jerk" ],
+          "Response": [ "rude" ]
+        },
+        {
+          "Statement": [ "i apologize", "sorry", "im sorry" ],
+          "Response": [ "That's okay." ]
+        },
+        {
+          "Statement": [ "what is love" ],
+          "Response": [ "Baby don't hurt me!" ]
+        },
+        {
+          "Statement": [ "dont hurt me" ],
+          "Response": [ "No more!" ]
+        }
+      ]
+    }
+  }
