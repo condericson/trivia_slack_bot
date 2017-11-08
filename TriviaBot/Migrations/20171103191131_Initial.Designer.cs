@@ -11,8 +11,8 @@ using TriviaBot.Models;
 namespace TriviaBot.Migrations
 {
     [DbContext(typeof(TriviaContext))]
-    [Migration("20171103122323_update_attempts")]
-    partial class update_attempts
+    [Migration("20171103191131_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

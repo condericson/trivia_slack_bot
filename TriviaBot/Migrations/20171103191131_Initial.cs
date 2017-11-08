@@ -13,6 +13,7 @@ namespace TriviaBot.Migrations
                 columns: table => new
                 {
                     PlayerId = table.Column<Guid>(type: "BLOB", nullable: false),
+                    DirectMessage = table.Column<string>(type: "TEXT", nullable: true),
                     PlayerMention = table.Column<string>(type: "TEXT", nullable: true),
                     PlayerName = table.Column<string>(type: "TEXT", nullable: true),
                     PlayerSlackId = table.Column<string>(type: "TEXT", nullable: true)

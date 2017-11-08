@@ -13,6 +13,6 @@ namespace TriviaBot.Models
         public string PlayerName { get; set; }
         public string PlayerMention { get; set; }
         public List<Attempt> Attempts { get; set; }
-        //public string DirectMessage { get; set; }
+        public string DirectMessage { get; set; }
     }
 }

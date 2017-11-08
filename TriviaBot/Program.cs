@@ -41,7 +41,7 @@ namespace TriviaBot
 
             workingTriviaChannelId = Configuration["workingchannel"];
             triviaChannelId = Configuration["triviaChannelId"];
-            triviaChannelId = Configuration["workingchannel"];
+            //triviaChannelId = Configuration["workingchannel"];
             adminId = Configuration["adminId"];
             adminDM = Configuration["adminDM"];
 
@@ -145,13 +145,13 @@ namespace TriviaBot
                     {
                         DeleteMostRecentQuestion();
                     }
-                    //else if (messageText.Contains("tell user"))
-                    //{
-                    //    Ventriloquist(message.text);
-                    //}
+                    else if (messageText.Contains("tell user"))
+                    {
+                        Ventriloquist(message.text);
+                    }
                     else if (messageText.Contains("add attempt for"))
                     {
-                        ManuallyAddAttempts(message.text);
+                        PostMessage(adminDM, ManuallyAddAttempts(message.text));
                     }
                     else
                     {
@@ -174,11 +174,11 @@ namespace TriviaBot
                             PostMessage(adminId, "Error in createplayer");
                         }
                     }
-                    //var responseToCheck = CheckForAndAddDM(message.user, message.channel);
-                    //if (responseToCheck != "DM exists")
-                    //{
-                    //    PostMessage(adminId, responseToCheck);
-                    //}
+                    var responseToCheck = CheckForAndAddDM(message.user, message.channel);
+                    if (responseToCheck != "DM exists")
+                    {
+                        PostMessage(adminId, responseToCheck);
+                    }
                     if (messageText.Contains("help"))
                     {
                         PostMessage(message.user,
@@ -380,53 +380,18 @@ namespace TriviaBot
                     PostMessage(adminDM, currentPlayer.PlayerName + " tried to answer again but I found an answer for them already.");
                     return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". Your answer has been...wait a second, didn't you already answer this one?");
                 }
-                playersAnswer = CreateAttempt(messageText, question, currentPlayer, answers);
-                //Attempt newAttempt = new Attempt
-                //{
-                //    AttemptId = Guid.NewGuid(),
-                //    Question = question,
-                //    Player = currentPlayer,
-                //    Answer = answers[(int)(messageText[0] - 'a')],
-                //};
-                //Console.WriteLine("Message text: " + messageText[0]);
-                //Console.WriteLine("Answer statement: " + answers[(int)(messageText[0] - 'a')].Statement);
-                //playersAnswer = answers[(int)(messageText[0] - 'a')].Statement;
-                //Console.WriteLine("Player Answer: " + playersAnswer);
-                //if (answers[(int)(messageText[0] - 'a')].IsCorrect)
-                //{
-                //    newAttempt.Correct = true;
-                //    Console.WriteLine("it was correct!");
-                //}
-                //else
-                //{
-                //    newAttempt.Correct = false;
-                //    Console.WriteLine("Wrong!");
-                //}
-                //dbcontext.Attempts.Add(newAttempt);
-                //dbcontext.SaveChanges();
-            }
-            var postScore = CheckPlayerScores(message.user);
-            PostMessage(adminDM, currentPlayer.PlayerName + " just guessed! Previous score was " + previousScore + ". Current score is " + postScore + ".");
-            return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". " + playersAnswer + ". Your answer has been recorded! The final score will be posted before the next question!");
-        }
-
-
-
-
-        static string CreateAttempt(string messageText, Question question, Player currentPlayer, List<Answer> answers)
-        {
-            var playersAnswer = "";
-            using (TriviaContext dbcontext = new TriviaContext())
-            {
+                //playersAnswer = CreateAttempt(messageText, question, currentPlayer, answers);
                 Attempt newAttempt = new Attempt
                 {
-                    Player = currentPlayer,
                     AttemptId = Guid.NewGuid(),
                     Question = question,
-                    PlayerId = currentPlayer.PlayerId,
+                    Player = currentPlayer,
                     Answer = answers[(int)(messageText[0] - 'a')],
                 };
+                Console.WriteLine("Message text: " + messageText[0]);
+                Console.WriteLine("Answer statement: " + answers[(int)(messageText[0] - 'a')].Statement);
                 playersAnswer = answers[(int)(messageText[0] - 'a')].Statement;
+                Console.WriteLine("Player Answer: " + playersAnswer);
                 if (answers[(int)(messageText[0] - 'a')].IsCorrect)
                 {
                     newAttempt.Correct = true;
@@ -440,8 +405,45 @@ namespace TriviaBot
                 dbcontext.Attempts.Add(newAttempt);
                 dbcontext.SaveChanges();
             }
-            return playersAnswer;
+            var postScore = CheckPlayerScores(message.user);
+            PostMessage(adminDM, currentPlayer.PlayerName + " just guessed! Previous score was " + previousScore + ". Current score is " + postScore + ".");
+            return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". " + playersAnswer + ". Your answer has been recorded! The final score will be posted before the next question!");
         }
+
+
+
+
+        //static string CreateAttempt(string messageText, Question question, Player currentPlayer, List<Answer> answers)
+        //{
+        //    var playersAnswer = "";
+        //    using (TriviaContext dbcontext = new TriviaContext())
+        //    {
+        //        Attempt newAttempt = new Attempt
+        //        {
+        //            AttemptId = Guid.NewGuid(),
+        //            Question = question,
+        //            Player = currentPlayer,
+        //            Answer = answers[(int)(messageText[0] - 'a')],
+        //        };
+        //        Console.WriteLine("Message text: " + messageText[0]);
+        //        Console.WriteLine("Answer statement: " + answers[(int)(messageText[0] - 'a')].Statement);
+        //        playersAnswer = answers[(int)(messageText[0] - 'a')].Statement;
+        //        Console.WriteLine("Player Answer: " + playersAnswer);
+        //        if (answers[(int)(messageText[0] - 'a')].IsCorrect)
+        //        {
+        //            newAttempt.Correct = true;
+        //            Console.WriteLine("it was correct!");
+        //        }
+        //        else
+        //        {
+        //            newAttempt.Correct = false;
+        //            Console.WriteLine("Wrong!");
+        //        }
+        //        dbcontext.Attempts.Add(newAttempt);
+        //        dbcontext.SaveChanges();
+        //    }
+        //    return playersAnswer;
+        //}
 
 
 
@@ -689,100 +691,169 @@ namespace TriviaBot
         }
 
 
-        //static string CheckForAndAddDM(string playerId, string playerDM)
+        static string CheckForAndAddDM(string playerId, string playerDM)
+        {
+            using (TriviaContext dbcontext = new TriviaContext())
+            {
+                var player = dbcontext.Players.FirstOrDefault(x => x.PlayerSlackId == playerId);
+                if (player == null)
+                {
+                    return "Something went wrong in CheckForAndAddDM.";
+                }
+                else if (string.IsNullOrWhiteSpace(player.DirectMessage))
+                {
+                    player.DirectMessage = playerDM;
+                    dbcontext.SaveChanges();
+                    return $"Added DM to {player.PlayerName}'s profile.";
+                }
+                else
+                {
+                    return "DM exists";
+                }
+            }
+        }
+
+
+        static void Ventriloquist(string message)
+        //Tell user @username Here's the sentence I want to send.
+        {
+            var words = message.Split(' ');
+            var message2 = string.Join(" ", words.Skip(3).ToArray());
+            var unformattedSlackId = words[2];
+            var playerSlackId = unformattedSlackId.Substring(2, unformattedSlackId.Length - 3);
+            var player = new Player();
+            var playerDM = "";
+            using (TriviaContext dbcontext = new TriviaContext())
+            {
+                player = dbcontext.Players.Where(x => x.PlayerSlackId == playerSlackId).FirstOrDefault();
+                if (player != null)
+                {
+                    playerDM = player.DirectMessage;
+                }
+                else
+                {
+                    Console.WriteLine("It died...");
+                }
+            }
+            PostMessage(adminDM, $"Telling {player.PlayerName}: {message2}");
+            PostMessage(playerDM, message2);
+        }
+
+
+
+
+        //static string RecordAnswer(NewMessage message, string messageText)
         //{
+        //    Player currentPlayer = new Player();
+        //    var previousScore = CheckPlayerScores(message.user);
+        //    var playersAnswer = "";
         //    using (TriviaContext dbcontext = new TriviaContext())
         //    {
-        //        var player = dbcontext.Players.FirstOrDefault(x => x.PlayerSlackId == playerId);
-        //        if (player == null)
+        //        var question = dbcontext.Questions.OrderByDescending(x => x.Date).First();
+        //        var answers = dbcontext.Answers.Where(x => x.Question.QuestionId == question.QuestionId).OrderBy(x => x.Statement).ToList();
+        //        currentPlayer = dbcontext.Players.FirstOrDefault(x => x.PlayerSlackId == message.user);
+        //        if (dbcontext.Attempts.FirstOrDefault(x => x.Question.QuestionId == question.QuestionId && x.Player.PlayerId == currentPlayer.PlayerId) != null)
         //        {
-        //            return "Something went wrong in CheckForAndAddDM.";
+        //            PostMessage(adminDM, currentPlayer.PlayerName + " tried to answer again but I found an answer for them already.");
+        //            return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". Your answer has been...wait a second, didn't you already answer this one?");
         //        }
-        //        else if (string.IsNullOrWhiteSpace(player.DirectMessage))
+        //        //playersAnswer = CreateAttempt(messageText, question, currentPlayer, answers);
+        //        Attempt newAttempt = new Attempt
         //        {
-        //            player.DirectMessage = playerDM;
-        //            dbcontext.SaveChanges();
-        //            return $"Added DM to {player.PlayerName}'s profile.";
+        //            AttemptId = Guid.NewGuid(),
+        //            Question = question,
+        //            Player = currentPlayer,
+        //            Answer = answers[(int)(messageText[0] - 'a')],
+        //        };
+        //        Console.WriteLine("Message text: " + messageText[0]);
+        //        Console.WriteLine("Answer statement: " + answers[(int)(messageText[0] - 'a')].Statement);
+        //        playersAnswer = answers[(int)(messageText[0] - 'a')].Statement;
+        //        Console.WriteLine("Player Answer: " + playersAnswer);
+        //        if (answers[(int)(messageText[0] - 'a')].IsCorrect)
+        //        {
+        //            newAttempt.Correct = true;
+        //            Console.WriteLine("it was correct!");
         //        }
         //        else
         //        {
-        //            return "DM exists";
+        //            newAttempt.Correct = false;
+        //            Console.WriteLine("Wrong!");
         //        }
+        //        dbcontext.Attempts.Add(newAttempt);
+        //        dbcontext.SaveChanges();
         //    }
+        //    var postScore = CheckPlayerScores(message.user);
+        //    PostMessage(adminDM, currentPlayer.PlayerName + " just guessed! Previous score was " + previousScore + ". Current score is " + postScore + ".");
+        //    return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". " + playersAnswer + ". Your answer has been recorded! The final score will be posted before the next question!");
         //}
 
 
-        //static void Ventriloquist(string message)
-        ////Tell @username Here's the sentence I want to send.
-        //{
-        //    var words = message.Split(' ');
-        //    var message2 = string.Join(" ", words.Skip(3).ToArray());
-        //    var unformattedSlackId = words[2];
-        //    var playerSlackId = unformattedSlackId.Substring(2, unformattedSlackId.Length - 3);
-        //    var player = new Player();
-        //    var playerDM = "";
-        //    using (TriviaContext dbcontext = new TriviaContext())
-        //    {
-        //        player = dbcontext.Players.Where(x => x.PlayerSlackId == playerSlackId).FirstOrDefault();
-        //        if (player != null)
-        //        {
-        //            playerDM = player.DirectMessage;
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("It died...");
-        //        }
-        //    }
-        //    PostMessage(adminDM, $"Telling {player.PlayerName}: {message2}");
-        //    PostMessage(playerDM, message2);
-        //}
 
 
 
         static string ManuallyAddAttempts(string message)
         //add attempt for @username a
         {
-            var words = message.Split(' ');
-            var guess = words[4];
-            var unformattedSlackId = words[3];
-            var playerSlackId = unformattedSlackId.Substring(2, unformattedSlackId.Length - 3);
-            Console.WriteLine(playerSlackId);
-            var currentPlayer = LookUpPlayer(playerSlackId);
-            Console.WriteLine(currentPlayer.PlayerSlackId);
-            var previousScore = CheckPlayerScores(playerSlackId);
-            var playersAnswer = "";
-
-            using (TriviaContext dbcontext = new TriviaContext())
+            try
             {
-                var question = dbcontext.Questions.OrderByDescending(x => x.Date).First();
-                var answers = dbcontext.Answers.Where(x => x.Question.QuestionId == question.QuestionId).OrderBy(x => x.Statement).ToList();
-                if (dbcontext.Attempts.FirstOrDefault(x => x.Question.QuestionId == question.QuestionId && x.Player.PlayerId == currentPlayer.PlayerId) != null)
+                var words = message.Split(' ');
+                var guess = words[4];
+                var unformattedSlackId = words[3];
+                var playerSlackId = unformattedSlackId.Substring(2, unformattedSlackId.Length - 3);
+                Console.WriteLine(playerSlackId);
+                var currentPlayer = new Player();
+                var previousScore = CheckPlayerScores(playerSlackId);
+                var playersAnswer = "";
+
+                using (TriviaContext dbcontext = new TriviaContext())
                 {
-                    return ($"Attempt already created for {currentPlayer.PlayerName}");
+                    currentPlayer = dbcontext.Players.FirstOrDefault(x => x.PlayerSlackId == playerSlackId);
+                    Console.WriteLine(currentPlayer.PlayerSlackId);
+                    if (currentPlayer == null)
+                    {
+                        return "currentPlayer is null. Couldn't find a player";
+                    }
+                    Console.WriteLine("Got here!");
+                    var question = dbcontext.Questions.OrderByDescending(x => x.Date).First();
+                    var answers = dbcontext.Answers.Where(x => x.Question.QuestionId == question.QuestionId).OrderBy(x => x.Statement).ToList();
+                    Console.WriteLine("Got here!");
+                    if (dbcontext.Attempts.FirstOrDefault(x => x.Question.QuestionId == question.QuestionId && x.Player.PlayerId == currentPlayer.PlayerId) != null)
+                    {
+                        return ($"Attempt already created for {currentPlayer.PlayerName}");
+                    }
+                    //        playersAnswer = CreateAttempt(guess, question, currentPlayer, answers);
+                    Attempt newAttempt = new Attempt
+                    {
+                        AttemptId = Guid.NewGuid(),
+                        Question = question,
+                        Player = currentPlayer,
+                        Answer = answers[(int)(guess[0] - 'a')],
+                    };
+                    Console.WriteLine("Message text: " + guess[0]);
+                    Console.WriteLine("Answer statement: " + answers[(int)(guess[0] - 'a')].Statement);
+                    playersAnswer = answers[(int)(guess[0] - 'a')].Statement;
+                    Console.WriteLine("Player Answer: " + playersAnswer);
+                    if (answers[(int)(guess[0] - 'a')].IsCorrect)
+                    {
+                        newAttempt.Correct = true;
+                        Console.WriteLine("it was correct!");
+                    }
+                    else
+                    {
+                        newAttempt.Correct = false;
+                        Console.WriteLine("Wrong!");
+                    }
+                    dbcontext.Attempts.Add(newAttempt);
+                    dbcontext.SaveChanges();
                 }
-                playersAnswer = CreateAttempt(guess, question, currentPlayer, answers);
-                //Attempt newAttempt = new Attempt
-                //{
-                //    AttemptId = Guid.NewGuid(),
-                //    Question = question,
-                //    Player = currentPlayer,
-                //    PlayerId = currentPlayer.PlayerId,
-                //    Answer = answers[(int)(guess - 'a')],
-                //};
-                //playersAnswer = answers[(int)(guess - 'a')].Statement;
-                //if (answers[(int)(guess - 'a')].IsCorrect)
-                //{
-                //    newAttempt.Correct = true;
-                //}
-                //else
-                //{
-                //    newAttempt.Correct = false;
-                //}
-                //dbcontext.Attempts.Add(newAttempt);
-                //dbcontext.SaveChanges();
+                var postScore = CheckPlayerScores(playerSlackId);
+                return $"{currentPlayer.PlayerName}'s guess added. Previous score was {previousScore}. Current score is {postScore}";
             }
-            var postScore = CheckPlayerScores(playerSlackId);
-            return $"{currentPlayer.PlayerName}'s guess added. Previous score was {previousScore}. Current score is {postScore}";
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return "fail";
+            }
         }
 
         //static void MakeDMsEmptyStrings()

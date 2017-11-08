@@ -66,6 +66,8 @@ namespace TriviaBot.Migrations
                     b.Property<Guid>("PlayerId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("DirectMessage");
+
                     b.Property<string>("PlayerMention");
 
                     b.Property<string>("PlayerName");
