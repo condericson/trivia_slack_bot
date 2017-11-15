@@ -370,6 +370,7 @@ namespace TriviaBot
             Player currentPlayer = new Player();
             var previousScore = CheckPlayerScores(message.user);
             var playersAnswer = "";
+            bool correctOrIncorrect;
             using (TriviaContext dbcontext = new TriviaContext())
             {
                 var question = dbcontext.Questions.OrderByDescending(x => x.Date).First();
@@ -396,18 +397,30 @@ namespace TriviaBot
                 {
                     newAttempt.Correct = true;
                     Console.WriteLine("it was correct!");
+                    correctOrIncorrect = newAttempt.Correct;
                 }
                 else
                 {
                     newAttempt.Correct = false;
                     Console.WriteLine("Wrong!");
+                    correctOrIncorrect = newAttempt.Correct;
                 }
                 dbcontext.Attempts.Add(newAttempt);
                 dbcontext.SaveChanges();
             }
             var postScore = CheckPlayerScores(message.user);
             PostMessage(adminDM, currentPlayer.PlayerName + " just guessed! Previous score was " + previousScore + ". Current score is " + postScore + ".");
-            return ("Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". " + playersAnswer + ". Your answer has been recorded! The final score will be posted before the next question!");
+            var responseToPlayer = "Thanks " + currentPlayer.PlayerName + "! You answered " + messageText.ToUpper() + ". " + playersAnswer + ". \n";
+            if (correctOrIncorrect)
+            {
+                responseToPlayer += "*You got it right!*";
+            }
+            if (!correctOrIncorrect)
+            {
+                responseToPlayer += "*Unfortunately, it was not correct.*";
+            }
+            responseToPlayer += "\nYour answer has been recorded. The final scores for all players will be posted before the next question!";
+            return responseToPlayer;
         }
 
 
@@ -560,7 +573,8 @@ namespace TriviaBot
                         }
                         congratzMessage += "and @" + playersWithCorrectAttempts[numberOfCorrectPlayers - 1].PlayerMention;
                     }
-                    congratzMessage += " for getting the correct answer to the trivia on " + mostRecentQuestion.Date.ToString("MM/dd/yyyy") + "! \n\n" + "The correct answer was " + correctAnswer.Statement + ".\n\n";
+                    congratzMessage += " for getting the correct answer to the trivia on " + mostRecentQuestion.Date.ToString("MM/dd/yyyy") + "! \n\n" + 
+                        "*The correct answer was " + correctAnswer.Statement + ".*\n\n";
                 }
             }
             return endRoundMessage + congratzMessage + currentScoreMessage;
@@ -869,6 +883,9 @@ namespace TriviaBot
         //        dbcontext.SaveChanges();
         //    }
         //}
+
+
+        //public void DeletePlayer()
 
     }
 }

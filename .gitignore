@@ -31,4 +31,4 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 authentication.json
-TriviaBot/Trivia-Bot.db
+Trivia-Bot.db
