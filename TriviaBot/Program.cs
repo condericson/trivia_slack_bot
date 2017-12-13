@@ -153,15 +153,31 @@ namespace TriviaBot
                     {
                         PostMessage(adminDM, ManuallyAddAttempts(message.text));
                     }
+                    else if (messageText == "help")
+                    {
+                        var helpMessage = "Hey Connor, here's what you can tell me:\n" +
+                                          "Send me a question using json format.\n" +
+                                          "Delete all attempts by saying 'delete attempts 8675309'.\n" +
+                                          "Delete a player's last attempt by saying 'delete player attempt @[slackmention]'.\n" +
+                                          "Delete the most recent question by saying 'delete last question 8675309'.\n" +
+                                          "Make me send a DM to a user by saying 'tell user @[slackmention] [Here's the sentence I want to send]'.\n" +
+                                          "Add attempts for a player by saying 'add attempt for @[slackmention] [letter]'.\n" +
+                                          "Get current score in trivia channel by saying 'current score'.\n" +
+                                          "Get current score in this channel by saying 'score'.\n";
+                        PostMessage(adminDM, helpMessage);
+                    }
                     else
                     {
                         PostMessage(adminDM, Converse(message.user, messageText));
                     }
                 }
                 //For all other users
-                else if (message.channel == triviaChannelId)
+                else if (message.channel == triviaChannelId && message.user == adminId)
                 {
-                    PostMessage(adminId, "Someone's typing in the trivia channel");
+                    if (messageText == "current score")
+                    {
+                        PostMessage(triviaChannelId, CheckAllScores());
+                    }
                 }
                 else if (message.channel != triviaChannelId)
                 {
@@ -205,8 +221,12 @@ namespace TriviaBot
                 }
                 if (message.user != adminId)
                 {
-                    var speakingPlayer = LookUpPlayer(message.user);
-                    PostMessage(adminId, "Message received on " + message.channel + " from " + speakingPlayer.PlayerName + " who said " + messageText);
+                    if (message.channel != "C6ZPBU15W")
+                    {
+                        var speakingPlayer = LookUpPlayer(message.user);
+                        PostMessage(adminId, "Message received on " + message.channel + " from " + speakingPlayer.PlayerName + " who said " + messageText);
+                    }
+                    
                 }
             }
         }
