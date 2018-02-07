@@ -9,15 +9,12 @@ namespace TriviaBot.Models
 {
     public class TriviaContext : DbContext
     {
-        public virtual DbSet<Question> Questions { get; set; }
-        public virtual DbSet<Answer> Answers { get; set; }
-        public virtual DbSet<Player> Players { get; set; }
-        public virtual DbSet<Attempt> Attempts { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {         
-            optionsBuilder.UseSqlite(@"Filename=./Trivia-Bot.db");
-        }
+        public TriviaContext(DbContextOptions options) : base(options) { }
+        
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{         
+        //    optionsBuilder.UseSqlite(@"Filename=./Trivia-Bot.db");
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,5 +30,9 @@ namespace TriviaBot.Models
 
             modelBuilder.Entity<Player>();
         }
+        public virtual DbSet<Question> Questions { get; set; }
+        public virtual DbSet<Answer> Answers { get; set; }
+        public virtual DbSet<Player> Players { get; set; }
+        public virtual DbSet<Attempt> Attempts { get; set; }
     }
 }
