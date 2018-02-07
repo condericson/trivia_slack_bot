@@ -49,7 +49,8 @@ namespace trivia_web_bot
             adminDM = Configuration["adminDM"];
             string timeSpanString = Configuration["timespan"];
             int.TryParse(timeSpanString, out int timeSpanHours);
-            timespan = new TimeSpan(0, timeSpanHours, 0, 0);
+            //timespan = new TimeSpan(0, timeSpanHours, 0, 0);
+            timespan = new TimeSpan(0, 1, 0, 0);
         }
 
         public void Start()
@@ -136,9 +137,9 @@ namespace trivia_web_bot
                     {
                         PostMessage(message.channel, "Test passed!");
                     }
-                    else if (messageText == "delete attempts 8675309")
+                    else if (messageText == "delete history 8675309")
                     {
-                        DeleteAttempts();
+                        DeleteHistory();
                     }
                     else if (message.text.Contains("delete player attempt"))
                     {
@@ -163,7 +164,7 @@ namespace trivia_web_bot
                         var helpMessage = "Hey Connor, here's what you can tell me:\n" +
                                           "Send me a question using json format.\n" +
                                           "Delete all attempts by saying 'delete attempts 8675309'.\n" +
-                                          "Delete a player's last attempt by saying 'delete player attempt @[slackmention]'.\n" +
+                                          "Delete a player's last attempt by saying 'delete history attempt @[slackmention]'.\n" +
                                           "Delete the most recent question by saying 'delete last question 8675309'.\n" +
                                           "Make me send a DM to a user by saying 'tell user @[slackmention] [Here's the sentence I want to send]'.\n" +
                                           "Add attempts for a player by saying 'add attempt for @[slackmention] [letter]'.\n" +
@@ -360,7 +361,9 @@ namespace trivia_web_bot
                 postedTriviaQuestion += answerLetter + ": " + answer.Statement + " \n";
                 answerLetter += (char)1;
             }
-            postedTriviaQuestion += "\n*Do not reply with your answer in this channel!*\n\nSo players remain anonymous, make sure you send a direct message to @triviabot with the LETTER of your guess!\n";
+            postedTriviaQuestion += "\n*Do not reply with your answer in this channel!*\n" +
+                                    "\nSo players remain anonymous, make sure you send a direct message to @triviabot with the LETTER of your guess!\n" +
+                                    "You have *10 hours* to answer the question. Good luck!";
             PostMessage(channelId, postedTriviaQuestion);
             SetReminder();
             SetEndRound();
@@ -392,6 +395,12 @@ namespace trivia_web_bot
             bool correctOrIncorrect;
 
             var question = dbcontext.Questions.OrderByDescending(x => x.Date).First();
+            PostMessage(adminDM, ("question.Date is " + question.Date + ". Timespan is " + timespan + ". DateTime.Now is " + DateTime.Now));
+            if (question.Date + timespan < DateTime.Now)
+            {
+                PostMessage(adminDM, currentPlayer.PlayerName + " answered too late.");
+                return ("Thanks " + currentPlayer.PlayerName + " for your answer! Unfortunately, you've answered after the end of the round. Check back soon for another question!");
+            }
             var answers = dbcontext.Answers.Where(x => x.Question.QuestionId == question.QuestionId).OrderBy(x => x.Statement).ToList();
             currentPlayer = dbcontext.Players.FirstOrDefault(x => x.PlayerSlackId == message.user);
             if (dbcontext.Attempts.FirstOrDefault(x => x.Question.QuestionId == question.QuestionId && x.Player.PlayerId == currentPlayer.PlayerId) != null)
@@ -656,11 +665,12 @@ namespace trivia_web_bot
         }
 
 
-        void DeleteAttempts()
+        void DeleteHistory()
         {
             dbcontext.Attempts.RemoveRange(dbcontext.Attempts.ToList());
+            dbcontext.Questions.RemoveRange(dbcontext.Questions.ToList());
             dbcontext.SaveChanges();
-            PostMessage(adminDM, "Deleted attempts");
+            PostMessage(adminDM, "Deleted history");
             PostMessage(adminDM, CheckAllScores());
         }
 

@@ -47,52 +47,14 @@ namespace TriviaBot
             try
             {
                 slackHelper.Start();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-              Console.WriteLine(ex);
+                Console.WriteLine(ex);
             }
             
-
-
             pendingQuestionId = Guid.Empty;
 
-
-            //var builder = new ConfigurationBuilder()
-            //  .SetBasePath(Directory.GetCurrentDirectory())
-            //  .AddJsonFile("authentication.json", false, false)
-            //  .AddJsonFile("conversations.json", false, true);
-
-            //Configuration = builder.Build();
-
-            //string token = Configuration["auth"];
-
-            //client = new SlackSocketClient(token);
-
-            //workingTriviaChannelId = Configuration["workingchannel"];
-            //triviaChannelId = Configuration["triviaChannelId"];
-            ////triviaChannelId = Configuration["workingchannel"];
-            //adminId = Configuration["adminId"];
-            //adminDM = Configuration["adminDM"];
-            //string timeSpanString = Configuration["timespan"];
-            //int.TryParse(timeSpanString, out int timeSpanHours);
-            //timespan = new TimeSpan(0, timeSpanHours, 0, 0);
-
-            //ManualResetEventSlim clientReady = new ManualResetEventSlim(false);
-            //Console.WriteLine("Communing with Slack Gods.");
-            //client.Connect((connected) =>
-            //{
-            //    // This is called once the client has emitted the RTM start command
-            //    Console.WriteLine("They are ready to receive me.");
-            //    clientReady.Set();
-            //    //MakeDMsEmptyStrings();
-            //}, () =>
-            //{
-            //    // This is called once the RTM client has connected to the end point
-            //    Console.WriteLine("The Gods have heard my call.");
-            //});
-            //client.OnMessageReceived += OnMessageReceived;
-            //clientReady.Wait();
-            //Thread.Sleep(-1);
         }
     }
 }
